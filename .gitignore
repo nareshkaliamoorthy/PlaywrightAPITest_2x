@@ -1,0 +1,7 @@
+#directories to ignore
+.__pycache__
+.pytest_cache
+.venv
+.reports
+
+#files to ignore
