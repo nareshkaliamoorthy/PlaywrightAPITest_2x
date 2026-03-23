@@ -7,10 +7,10 @@ pipeline {
         string(name: 'TAGS', defaultValue: 'api', description: 'Pytest markers to run (e.g., smoke, regression)')
     }
 
-    tools {
-        // Ensure this Name matches what you set in Manage Jenkins -> Tools
-        allure 'allure-latest'
-    }
+    // tools {
+    //     // Ensure this Name matches what you set in Manage Jenkins -> Tools
+    //     allure 'allure-latest'
+    // }
 
     environment {
         PYTHONPATH = "${env.WORKSPACE}"
