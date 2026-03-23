@@ -17,6 +17,13 @@ pipeline {
     }
 
     stages {
+        
+        stage('Clean Workspace') {
+            steps {
+                cleanWs()
+            }
+        }
+
         stage('Checkout') {
             steps {
                 git branch: 'master', 
@@ -40,6 +47,11 @@ pipeline {
             steps {
                 // We use 'exit 0' to ensure the pipeline continues to the Allure report even if tests fail
                 bat '''
+
+                    REM Clean old results
+                    if exist reports\\allure-results rmdir /s /q reports\\allure-results
+
+                    REM Run tests
                     call venv\\Scripts\\activate
                     pytest -m "%TAGS%" --browser "%BROWSER%" --base-url "%ENV%" --alluredir=reports\\allure-results || exit 0
                 '''
