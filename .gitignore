@@ -2,6 +2,7 @@
 .__pycache__
 .pytest_cache
 .venv
-.reports/**
+.reports/allure-results/*.json
+.reports/allure-report/*.html
 
 #files to ignore
