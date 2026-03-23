@@ -17,7 +17,7 @@ pipeline {
     }
 
     stages {
-        
+
         stage('Clean Workspace') {
             steps {
                 cleanWs()
@@ -26,9 +26,14 @@ pipeline {
 
         stage('Checkout') {
             steps {
-                git branch: 'master', 
-                    credentialsId: 'knareshtr', 
-                    url: 'https://github.com/nareshkaliamoorthy/PlaywrightAPITest_2x.git'
+                checkout([
+                    $class: 'GitSCM',
+                    branches: [[name: '*/master']],
+                    userRemoteConfigs: [[
+                        url: 'https://github.com/nareshkaliamoorthy/PlaywrightAPITest_2x.git',
+                        credentialsId: 'knareshtr'
+                    ]]
+                ])
             }
         }
 
