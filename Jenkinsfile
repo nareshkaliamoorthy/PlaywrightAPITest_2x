@@ -1,16 +1,17 @@
 pipeline {
     agent any 
 
-    parameters {
-        string(name: 'BROWSER', defaultValue: 'chrome', description: 'Browser to run tests on')
-        string(name: 'ENV', defaultValue: 'prod', description: 'Target environment')
-        string(name: 'TAGS', defaultValue: 'api', description: 'Pytest markers to run (e.g., smoke, regression)')
+    options {
+        timestamps()
+        timeout(time: 5, unit: 'MINUTES')
+        retry(2)
     }
 
-    // tools {
-    //     // Ensure this Name matches what you set in Manage Jenkins -> Tools
-    //     allure 'allure-latest'
-    // }
+    parameters {
+        string(name: 'BROWSER', defaultValue: 'chrome')
+        string(name: 'ENV', defaultValue: 'prod')
+        string(name: 'TAGS', defaultValue: 'api')
+    }
 
     environment {
         PYTHONPATH = "${env.WORKSPACE}"
@@ -18,17 +19,11 @@ pipeline {
 
     stages {
 
-        stage('Clean Workspace') {
-            steps {
-                cleanWs()
-            }
-        }
-
         stage('Checkout') {
             steps {
                 checkout([
                     $class: 'GitSCM',
-                    branches: [[name: '*/master']],
+                    branches: [[name: '*/main']],
                     userRemoteConfigs: [[
                         url: 'https://github.com/nareshkaliamoorthy/PlaywrightAPITest_2x.git',
                         credentialsId: 'knareshtr'
@@ -42,23 +37,18 @@ pipeline {
                 bat '''
                     python -m venv venv
                     call venv\\Scripts\\activate
-                    pip install --upgrade pip
-                    pip install -r requirements.txt
+                    python -m pip install --upgrade pip
+                    python -m pip install -r requirements.txt
                 '''
             }
         }
 
         stage('Execute Tests') {
             steps {
-                // We use 'exit 0' to ensure the pipeline continues to the Allure report even if tests fail
                 bat '''
-
-                    REM Clean old results
                     if exist reports\\allure-results rmdir /s /q reports\\allure-results
-
-                    REM Run tests
                     call venv\\Scripts\\activate
-                    pytest -m "%TAGS%" --browser "%BROWSER%" --base-url "%ENV%" --alluredir=reports\\allure-results || exit 0
+                    pytest -m "%TAGS%" --browser "%BROWSER%" --base-url "%ENV%" --alluredir=reports\\allure-results
                 '''
             }
         }
@@ -66,14 +56,10 @@ pipeline {
 
     post {
         always {
-            script {
-                // Note: Jenkins Allure plugin handles the path mapping automatically
-                allure includeProperties: false, jdk: '', results: [[path: 'reports/allure-results']]
-            }
+            allure includeProperties: false, jdk: '', results: [[path: 'reports/allure-results']]
         }
-        
         failure {
-            echo "Build Failed! Check the Allure Report for screenshots and logs."
+            echo "Build Failed! Check Allure Report."
         }
     }
 }
