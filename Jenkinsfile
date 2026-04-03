@@ -8,7 +8,7 @@ pipeline {
     }
 
     parameters {
-        string(name: 'BROWSER', defaultValue: 'chrome')
+        string(name: 'BROWSER', defaultValue: 'chromium')
         string(name: 'ENV', defaultValue: 'prod')
         string(name: 'TAGS', defaultValue: 'api')
     }
